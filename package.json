@@ -1,0 +1,15 @@
+{
+  "name": "autodarts-kiosk",
+  "version": "0.1.0",
+  "description": "Kiosk-Shell für Autodarts: Play-Seite + Board-Manager in einem Fenster, mit Custom Aktionen",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "kiosk": "electron . --kiosk",
+    "test": "node --test test/*.test.js"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^45.2.0"
+  }
+}

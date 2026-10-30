@@ -1,0 +1,13 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; style-src 'self' 'unsafe-inline'">
+<style>
+  html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; }
+  #t { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+       font: 900 20vw/1 system-ui, sans-serif; color: #fff; opacity: 0; text-align: center;
+       text-shadow: 0 0 40px currentColor, 0 6px 0 rgba(0,0,0,.5); }
+  #t.go { animation: pop var(--ms) ease-out forwards; }
+  @keyframes pop { 0% { transform: scale(.3); opacity: 0; } 15% { transform: scale(1.1); opacity: 1; }
+                   25% { transform: scale(1); } 85% { opacity: 1; } 100% { transform: scale(1.05); opacity: 0; } }
+</style></head>
+<body><div id="t"></div><script src="overlay.js"></script></body></html>

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; style-src 'self' 'unsafe-inline'">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px 32px 80px; background: #0b0e14; color: #e6e9ef; font: 15px system-ui, sans-serif; }
+  h1 { font-size: 22px; margin: 0 0 16px; } h2 { font-size: 16px; margin: 28px 0 10px; color: #9aa6bd; text-transform: uppercase; letter-spacing: 1px; }
+  .card { background: #131925; border: 1px solid #222a38; border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
+  .row { display: flex; gap: 8px; align-items: center; margin: 6px 0; flex-wrap: wrap; }
+  label { color: #9aa6bd; min-width: 90px; }
+  input[type=text], input[type=number], select { background: #0b0e14; color: inherit; border: 1px solid #2a3447; border-radius: 8px; padding: 8px 10px; font: inherit; }
+  input.grow { flex: 1; min-width: 160px; }
+  button { background: #1b2230; color: inherit; border: 1px solid #2a3447; border-radius: 8px; padding: 8px 14px; font: inherit; cursor: pointer; }
+  button:hover { background: #242d40; } button.primary { background: #ff4d4d; border-color: #ff4d4d; color: #fff; }
+  button.danger { color: #ff8080; }
+  .action { border-left: 3px solid #ff4d4d; padding-left: 10px; margin: 8px 0; }
+  .hint { color: #6f7c94; font-size: 13px; }
+  #log { font: 13px ui-monospace, monospace; color: #9aa6bd; max-height: 180px; overflow: auto; white-space: pre; }
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 32px; background: #11151d; border-top: 1px solid #222a38; display: flex; gap: 12px; align-items: center; }
+</style></head>
+<body>
+  <h1>Einstellungen &amp; Custom Aktionen</h1>
+  <h2>Allgemein</h2>
+  <div class="card" id="general"></div>
+  <h2>Regeln</h2>
+  <div id="rules"></div>
+  <button id="addRule">+ Regel hinzufügen</button>
+  <p class="hint">Trigger-Werte: <b>Wurf</b> z. B. <code>T20</code>, <code>D*</code>, <code>BULL</code>, <code>MISS</code>, mehrere per Komma. <b>Aufnahme-Summe</b> z. B. <code>180</code>.
+     Platzhalter in Texten/URLs/Bodies: <code>{value}</code> <code>{points}</code> <code>{player}</code>.</p>
+  <h2>Live-Events (zum Prüfen der Erkennung)</h2>
+  <div class="card"><div id="log">Warte auf Würfe …</div></div>
+  <div class="bar"><button class="primary" id="save">Speichern</button><span id="status" class="hint"></span></div>
+  <script src="settings.js"></script>
+</body></html>

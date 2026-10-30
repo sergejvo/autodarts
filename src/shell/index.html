@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; media-src file:; style-src 'self' 'unsafe-inline'">
+<style>
+  * { box-sizing: border-box; user-select: none; }
+  body { margin: 0; height: 56px; display: flex; align-items: center; gap: 8px; padding: 0 12px;
+         background: #11151d; color: #e6e9ef; font: 600 15px system-ui, sans-serif; border-bottom: 1px solid #222a38; }
+  .brand { color: #ff4d4d; font-size: 18px; margin-right: 12px; letter-spacing: .5px; }
+  button { background: #1b2230; color: inherit; border: 1px solid #2a3447; border-radius: 10px;
+           padding: 0 18px; height: 40px; font: inherit; cursor: pointer; }
+  button:hover { background: #242d40; }
+  button.active { background: #ff4d4d; border-color: #ff4d4d; color: #fff; }
+  .spacer { flex: 1; }
+</style></head>
+<body>
+  <span class="brand">🎯 AUTODARTS</span>
+  <button data-mode="play">Spiel</button>
+  <button data-mode="manager">Board</button>
+  <button data-mode="split">Split</button>
+  <button data-mode="settings">Aktionen ⚙</button>
+  <span class="spacer"></span>
+  <button id="reload" title="F5">⟳</button>
+  <button id="quit" title="Ctrl+Q">✕</button>
+  <script src="shell.js"></script>
+</body></html>

@@ -1,0 +1,16 @@
+# Alternative zum Desktop-Autostart: systemd-User-Unit.
+# Installation:
+#   mkdir -p ~/.config/systemd/user
+#   sed "s|@APP_DIR@|$PWD|" deploy/autodarts-kiosk.service > ~/.config/systemd/user/autodarts-kiosk.service
+#   systemctl --user daemon-reload && systemctl --user enable --now autodarts-kiosk
+[Unit]
+Description=Autodarts Kiosk
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=@APP_DIR@/deploy/autodarts-kiosk.sh
+Restart=on-failure
+
+[Install]
+WantedBy=graphical-session.target
