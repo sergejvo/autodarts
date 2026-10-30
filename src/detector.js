@@ -3,7 +3,12 @@
 // (siehe README: mit "debug" kann man rohe Nachrichten mitschneiden und die Heuristik anpassen).
 
 function normalizeThrow(t) {
-  const seg = t?.segment ?? {};
+  // Board-Manager: flach (segmentName/segmentNumber/multiplier); Play-Seite: verschachtelt (segment.*)
+  const seg = t?.segment ?? {
+    number: t?.segmentNumber,
+    multiplier: t?.multiplier,
+    name: t?.segmentName,
+  };
   let number = Number(seg.number);
   let mult = Number(seg.multiplier);
   const name = String(seg.name ?? '').toUpperCase();
@@ -25,13 +30,60 @@ function currentTurn(data) {
   return null;
 }
 
+function endEvents(player, total, busted = false) {
+  const events = [];
+  if (busted) events.push({ type: 'bust', player, value: 'BUST', points: total });
+  events.push({ type: 'turnScore', player, value: String(total), points: total });
+  events.push({ type: 'turnEnd', player, value: String(total), points: total });
+  return events;
+}
+
+const sum = (throws) => throws.reduce((s, t) => s + normalizeThrow(t).points, 0);
+
+// Board-Manager (ws://localhost:3180/api/events/system): {type:'state', data:{throws:[...]}}.
+// Die Liste wächst pro Dart und wird beim Entnehmen der Darts wieder leer.
+function createStateFeed() {
+  let seen = null;
+  let current = [];
+  let ended = false;
+
+  return function feedState(data) {
+    const throws = data.throws;
+    const events = [];
+    if (seen === null) {
+      // Erste Nachricht nach Verbindungsaufbau ist nur ein Schnappschuss, keine neuen Würfe
+      seen = throws.length;
+      current = throws;
+      ended = throws.length >= 3;
+      return events;
+    }
+    if (throws.length < seen) {
+      if (!ended && current.length) events.push(...endEvents('', sum(current)));
+      seen = 0;
+      ended = false;
+    }
+    for (let i = seen; i < throws.length; i++) {
+      events.push({ type: 'throw', player: '', ...normalizeThrow(throws[i]) });
+    }
+    seen = throws.length;
+    current = throws;
+    if (!ended && throws.length >= 3) {
+      ended = true;
+      events.push(...endEvents('', sum(throws)));
+    }
+    return events;
+  };
+}
+
 function createDetector() {
+  const feedState = createStateFeed();
   let turnKey = null;
   let seen = 0;
   let turnEndEmitted = false;
 
   return function feed(msg) {
     const data = msg?.data;
+    if (msg?.type === 'state' && Array.isArray(data?.throws)) return feedState(data);
     const turn = currentTurn(data);
     if (!turn || !Array.isArray(turn.throws)) return [];
 
@@ -60,9 +112,7 @@ function createDetector() {
     const done = throws.length >= 3 || turn.finished === true || turn.busted === true;
     if (done && !turnEndEmitted) {
       turnEndEmitted = true;
-      if (turn.busted) events.push({ type: 'bust', player, value: 'BUST', points: total });
-      events.push({ type: 'turnScore', player, value: String(total), points: total });
-      events.push({ type: 'turnEnd', player, value: String(total), points: total });
+      events.push(...endEvents(player, total, turn.busted));
     }
     return events;
   };

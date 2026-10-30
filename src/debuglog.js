@@ -2,6 +2,7 @@ const fs = require('node:fs');
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const WINDOW_MS = 30000;
+const NOISY = new Set(['vantage', 'vantageConfig', 'stats']); // Kamera-Telemetrie des Board-Managers
 
 // Kompaktes Debug-Log: pro Topic nur die erste Nachricht komplett, danach nur Nachrichten,
 // die nach Wurf-Daten aussehen (und sich geändert haben). Dazu alle 30 s eine Zählerzeile.
@@ -46,7 +47,7 @@ function createDebugLog(file) {
     const isNew = !first.has(topic);
     const looksLikeThrow = /"throws?"\s*:|"segment"|"turns?"\s*:/i.test(data);
     if (isNew) first.add(topic);
-    if (!isNew && !(looksLikeThrow && lastBody.get(topic) !== data)) return;
+    if (!isNew && (NOISY.has(topic) || !(looksLikeThrow && lastBody.get(topic) !== data))) return;
     lastBody.set(topic, data);
     write(`${new Date().toISOString()} [text] ${isNew ? 'NEU ' : ''}${topic}  (${url})\n${data.slice(0, 4000)}\n`);
   };

@@ -37,3 +37,30 @@ test('Trigger-Matching mit Wildcards und Listen', () => {
   assert.ok(!matches({ type: 'throw', value: 'T20' }, { type: 'throw', value: 'S20' }));
   assert.ok(matches({ type: 'throw', value: '' }, { type: 'throw', value: 'MISS' }));
 });
+
+const bm = (...names) => ({
+  type: 'state',
+  data: { throws: names.map((n) => ({ segmentName: n, segmentNumber: parseInt(n.slice(1), 10), multiplier: { S: 1, D: 2, T: 3 }[n[0]] })) },
+});
+
+test('Board-Manager: Schnappschuss erzeugt keine Events, neue Darts schon', () => {
+  const feed = createDetector();
+  assert.strictEqual(feed(bm('S18', 'D20', 'S1')).length, 0); // alte Darts beim Verbinden
+  assert.strictEqual(feed({ type: 'state', data: { throws: [] } }).length, 0); // Entnahme nach bereits beendeter Aufnahme
+  assert.deepStrictEqual(feed(bm('T20')).map((e) => e.value), ['T20']);
+  assert.strictEqual(feed(bm('T20')).length, 0);
+  assert.deepStrictEqual(feed(bm('T20', 'T20')).map((e) => e.value), ['T20']);
+  const last = feed(bm('T20', 'T20', 'T20'));
+  assert.deepStrictEqual(last.map((e) => e.type), ['throw', 'turnScore', 'turnEnd']);
+  assert.strictEqual(last[1].value, '180');
+  assert.strictEqual(feed({ type: 'state', data: { throws: [] } }).length, 0);
+});
+
+test('Board-Manager: vorzeitige Entnahme beendet die Aufnahme', () => {
+  const feed = createDetector();
+  feed({ type: 'state', data: { throws: [] } });
+  feed(bm('S5'));
+  const end = feed({ type: 'state', data: { throws: [] } });
+  assert.deepStrictEqual(end.map((e) => e.type), ['turnScore', 'turnEnd']);
+  assert.strictEqual(end[0].value, '5');
+});
