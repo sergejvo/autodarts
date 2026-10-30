@@ -8,8 +8,11 @@ webFrame.executeJavaScript(`(() => {
   const Orig = window.WebSocket;
   function Hooked(url, protocols) {
     const ws = protocols !== undefined ? new Orig(url, protocols) : new Orig(url);
+    const post = (kind, data) => window.postMessage({ __adws: true, kind, url: String(url), data }, '*');
+    post('open', '');
     ws.addEventListener('message', (e) => {
-      if (typeof e.data === 'string') window.postMessage({ __adws: true, url: String(url), data: e.data }, '*');
+      if (typeof e.data === 'string') post('text', e.data);
+      else post('binary', Object.prototype.toString.call(e.data));
     });
     return ws;
   }
@@ -20,6 +23,9 @@ webFrame.executeJavaScript(`(() => {
 
 window.addEventListener('message', (e) => {
   if (e.source === window && e.data && e.data.__adws) {
-    ipcRenderer.send('ws', { url: e.data.url, data: e.data.data });
+    ipcRenderer.send('ws', { kind: e.data.kind, url: e.data.url, data: e.data.data });
   }
 });
+
+// Diagnose: zeigt im Debug-Log, dass der Preload auf dieser Seite läuft
+ipcRenderer.send('ws', { kind: 'preload', url: location.href, data: '' });

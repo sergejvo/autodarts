@@ -83,8 +83,14 @@ function onKey(event, input) {
   const map = { F1: 'play', F2: 'manager', F3: 'split', F4: 'settings' };
   if (map[input.key]) return event.preventDefault(), setLayout(map[input.key]);
   if (input.key === 'F11') return event.preventDefault(), win.setFullScreen(!win.isFullScreen());
+  if (input.key === 'F12') return event.preventDefault(), openDevTools();
   if (input.key === 'F5') return event.preventDefault(), reloadActive();
   if ((input.control || input.meta) && input.key.toLowerCase() === 'q') app.quit();
+}
+
+function openDevTools() {
+  const names = layoutMode === 'split' ? ['play', 'manager'] : [layoutMode];
+  names.forEach((n) => views[n].webContents.openDevTools({ mode: 'detach' }));
 }
 
 function reloadActive() {
@@ -128,11 +134,12 @@ app.whenReady().then(() => {
   cfg = config.load();
   createWindow();
 
-  ipcMain.on('ws', (e, { url, data }) => {
+  ipcMain.on('ws', (e, { kind = 'text', url, data }) => {
     if (cfg.debug) {
       const log = path.join(app.getPath('userData'), 'ws-debug.log');
-      fs.appendFile(log, `${new Date().toISOString()} ${url}\n${String(data).slice(0, 4000)}\n`, () => {});
+      fs.appendFile(log, `${new Date().toISOString()} [${kind}] ${url}\n${String(data).slice(0, 4000)}\n`, () => {});
     }
+    if (kind !== 'text') return;
     let msg;
     try {
       msg = JSON.parse(data);
