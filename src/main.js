@@ -1,9 +1,9 @@
 const path = require('node:path');
-const fs = require('node:fs');
 const { app, BaseWindow, WebContentsView, ipcMain, dialog } = require('electron');
 const config = require('./config');
 const { ActionRunner } = require('./actions');
 const { createDetector } = require('./detector');
+const { createDebugLog } = require('./debuglog');
 
 const TOOLBAR_H = 56;
 let cfg;
@@ -134,18 +134,21 @@ app.whenReady().then(() => {
   cfg = config.load();
   createWindow();
 
+  let debugLog;
   ipcMain.on('ws', (e, { kind = 'text', url, data }) => {
+    let msg = null;
+    if (kind === 'text') {
+      try {
+        msg = JSON.parse(data);
+      } catch {
+        /* kein JSON */
+      }
+    }
     if (cfg.debug) {
-      const log = path.join(app.getPath('userData'), 'ws-debug.log');
-      fs.appendFile(log, `${new Date().toISOString()} [${kind}] ${url}\n${String(data).slice(0, 4000)}\n`, () => {});
+      debugLog ??= createDebugLog(path.join(app.getPath('userData'), 'ws-debug.log'));
+      debugLog({ kind, url, data: String(data) }, msg);
     }
-    if (kind !== 'text') return;
-    let msg;
-    try {
-      msg = JSON.parse(data);
-    } catch {
-      return;
-    }
+    if (!msg) return;
     const id = e.sender.id;
     if (!detectors.has(id)) detectors.set(id, createDetector());
     for (const ev of detectors.get(id)(msg)) {
