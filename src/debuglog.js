@@ -44,7 +44,7 @@ function createDebugLog(file) {
     counts.set(topic, (counts.get(topic) ?? 0) + 1);
 
     const isNew = !first.has(topic);
-    const looksLikeThrow = /throw|segment|dart/i.test(data);
+    const looksLikeThrow = /"throws?"\s*:|"segment"|"turns?"\s*:/i.test(data);
     if (isNew) first.add(topic);
     if (!isNew && !(looksLikeThrow && lastBody.get(topic) !== data)) return;
     lastBody.set(topic, data);
