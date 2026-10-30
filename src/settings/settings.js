@@ -66,6 +66,8 @@ function render() {
   g.replaceChildren(
     field('Play-URL', cfg, 'playUrl', { cls: 'grow' }),
     field('Board-Manager', cfg, 'managerUrl', { cls: 'grow' }),
+    h('div', { className: 'row' }, h('label', { textContent: 'Startansicht' }),
+      select(cfg, 'defaultLayout', [['play', 'Spiel'], ['manager', 'Board'], ['split', 'Split']])),
     check('Kiosk-Start', cfg, 'kiosk'),
     check('Debug-Log', cfg, 'debug'),
   );

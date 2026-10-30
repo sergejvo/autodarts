@@ -93,6 +93,7 @@ function reloadActive() {
 }
 
 function createWindow() {
+  layoutMode = ['play', 'manager', 'split'].includes(cfg.defaultLayout) ? cfg.defaultLayout : 'play';
   const kiosk = cfg.kiosk || process.argv.includes('--kiosk');
   win = new BaseWindow({ width: 1280, height: 800, fullscreen: kiosk, autoHideMenuBar: true, backgroundColor: '#0b0e14' });
 

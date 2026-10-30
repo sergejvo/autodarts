@@ -6,6 +6,7 @@ const DEFAULTS = {
   playUrl: 'https://autodarts.com/play',
   managerUrl: 'http://localhost:3180',
   kiosk: false,
+  defaultLayout: 'split',
   debug: false,
   rules: [
     {
